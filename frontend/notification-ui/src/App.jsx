@@ -18,6 +18,36 @@ export default function App() {
   const [queue, setQueue] = useState([]);
 
   useEffect(() => {
+    // Handle page visibility changes to prevent bfcache issues
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Reconnect socket when page becomes visible
+        if (!socket.connected) {
+          socket.connect();
+        }
+      }
+    };
+
+    // Handle beforeunload to prevent bfcache
+    const handleBeforeUnload = () => {
+      // Force page reload on navigation to prevent bfcache
+      window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!socket.connected) socket.connect();
 
     const userId = "user123";
