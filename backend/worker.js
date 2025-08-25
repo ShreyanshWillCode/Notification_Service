@@ -84,8 +84,9 @@ async function run() {
       }
     });
   } catch (err) {
-    console.error("❌ Worker setup failed:", err.message);
-    process.exit(1);
+    console.warn("⚠️ RabbitMQ connection failed:", err.message);
+    console.log("📝 Worker exiting gracefully - notifications will be processed directly by the main server");
+    process.exit(0); // Exit cleanly instead of with error code
   }
 }
 
